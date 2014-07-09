@@ -4,7 +4,7 @@
 // @Authors:
 //       timop
 //
-// Copyright 2004-2012 by OM International
+// Copyright 2004-2014 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -60,8 +60,6 @@ namespace PetraWebService
 ///             R6030
 ///             - CRT not initialized
 /// Solution: run xsp with ms.net, or use sqlite with managed version only and native sqlite
-///
-/// TODO: generate soap functions with nant generateGlue from interfaces/instantiators?
 /// </summary>
 [WebService(Namespace = "http://www.openpetra.org/webservices/")]
 [ScriptService]
@@ -82,12 +80,7 @@ public class TOpenPetraOrg : WebService
         new TSrvSetting();
         new TLogging(TSrvSetting.ServerLogFile);
         TLogging.DebugLevel = TAppSettingsManager.GetInt16("Server.DebugLevel", 0);
-
-        DBAccess.SetFunctionForRetrievingCurrentObjectFromWebSession(SetDatabaseForSession,
-            GetDatabaseFromSession);
-
-        UserInfo.SetFunctionForRetrievingCurrentObjectFromWebSession(SetUserInfoForSession,
-            GetUserInfoFromSession);
+        RefreshDatabaseConnection(true);
     }
 
     /// <summary>Initialise the server; this can only be called once, after that it will have no effect;
@@ -107,6 +100,8 @@ public class TOpenPetraOrg : WebService
                 TSystemDefaultsCache.GSystemDefaultsCache = new TSystemDefaultsCache();
                 DomainManager.GSiteKey = TSystemDefaultsCache.GSystemDefaultsCache.GetInt64Default(
                     Ict.Petra.Shared.SharedConstants.SYSDEFAULT_SITEKEY);
+
+                StringHelper.CurrencyFormatTable = DBAccess.GDBAccessObj.SelectDT("SELECT * FROM PUB_a_currency", "a_currency", null);
             }
             catch (Exception e)
             {
@@ -121,7 +116,6 @@ public class TOpenPetraOrg : WebService
 
     private bool LoginInternal(string username, string password)
     {
-        Int32 ProcessID;
         bool ASystemEnabled;
 
         try
@@ -129,7 +123,7 @@ public class TOpenPetraOrg : WebService
             InitServer();
 
             TClientManager.PerformLoginChecks(
-                username.ToUpper(), password.Trim(), "WEB", "127.0.0.1", out ProcessID, out ASystemEnabled);
+                username.ToUpper(), password.Trim(), "WEB", "127.0.0.1", out ASystemEnabled);
             Session["LoggedIn"] = true;
 
             DBAccess.GDBAccessObj.UserID = username.ToUpper();
@@ -158,9 +152,9 @@ public class TOpenPetraOrg : WebService
         return loggedIn;
     }
 
-    private TDataBase GetDatabaseFromSession()
+    private void RefreshDatabaseConnection(bool AOpenConnection = true)
     {
-        if (HttpContext.Current.Session["DBAccessObj"] == null)
+        if (DBAccess.GDBAccessObj == null)
         {
             if (TheServerManager == null)
             {
@@ -175,26 +169,12 @@ public class TOpenPetraOrg : WebService
                 // disconnect normal users after 3 hours of inactivity
                 TheServerManager.DisconnectTimedoutDatabaseConnections(3 * 60 * 60, "");
 
-                TheServerManager.EstablishDBConnection();
+                if (AOpenConnection)
+                {
+                    TheServerManager.EstablishDBConnection();
+                }
             }
         }
-
-        return (TDataBase)HttpContext.Current.Session["DBAccessObj"];
-    }
-
-    private void SetDatabaseForSession(TDataBase database)
-    {
-        HttpContext.Current.Session["DBAccessObj"] = database;
-    }
-
-    private TPetraPrincipal GetUserInfoFromSession()
-    {
-        return (TPetraPrincipal)HttpContext.Current.Session["UserInfo"];
-    }
-
-    private void SetUserInfoForSession(TPetraPrincipal userinfo)
-    {
-        HttpContext.Current.Session["UserInfo"] = userinfo;
     }
 
     /// <summary>check if the user has logged in successfully</summary>

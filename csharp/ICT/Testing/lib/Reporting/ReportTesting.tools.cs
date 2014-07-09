@@ -113,7 +113,7 @@ namespace Tests.MReporting.Tools
 
             ReportGenerator.Start(Parameters.ToDataTable());
 
-            while (ReportGenerator.AsyncExecProgressServerSide.ProgressState == TAsyncExecProgressState.Aeps_Executing)
+            while (!ReportGenerator.Progress.JobFinished)
             {
                 Thread.Sleep(500);
             }
