@@ -4,7 +4,7 @@
 // @Authors:
 //       timop
 //
-// Copyright 2004-2013 by OM International
+// Copyright 2004-2014 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -200,7 +200,7 @@ public class GenerateClientGlue
         List <TypeDeclaration>ConnectorClasses = TCollectConnectorInterfaces.FindTypesInNamespace(connectors, ConnectorNamespace);
 
         ConnectorNamespace = ConnectorNamespace.
-                             Replace("Ict.Petra.Shared.", "Ict.Petra.Server.");
+                             Replace(".Shared.", ".Server.");
 
         foreach (TypeDeclaration connectorClass in ConnectorClasses)
         {
@@ -370,7 +370,7 @@ public class GenerateClientGlue
         List <TypeDeclaration>ConnectorClasses = TCollectConnectorInterfaces.FindTypesInNamespace(connectors, ConnectorNamespace);
 
         ConnectorNamespace = ConnectorNamespace.
-                             Replace("Ict.Petra.Shared.", "Ict.Petra.Server.");
+                             Replace(".Shared.", ".Server.");
 
         foreach (TypeDeclaration connectorClass in ConnectorClasses)
         {
@@ -499,11 +499,22 @@ public class GenerateClientGlue
         InterfacePath = InterfacePath.Substring(0, InterfacePath.IndexOf("csharp/ICT/Petra")) + "csharp/ICT/Petra/Shared/lib/Interfaces";
         Template.AddToCodelet("USINGNAMESPACES", CreateInterfaces.AddNamespacesFromYmlFile(InterfacePath, tn.Name));
 
+        if (AOutputPath.Contains("ICT/Petra/Plugins/"))
+        {
+            // add namespaces that are required by the plugin
+            InterfacePath = Path.GetFullPath(AOutputPath + "/../").Replace(Path.DirectorySeparatorChar, '/');
+            Template.AddToCodelet("USINGNAMESPACES", CreateInterfaces.AddNamespacesFromYmlFile(InterfacePath, "Plugin"));
+        }
+
         string SharedPathName = "Ict.Petra.Shared.M" + tn.Name;
 
         if (SharedPathName.Contains("ServerAdmin"))
         {
             SharedPathName = "Ict.Petra.Server.App.Core." + tn.Name;
+        }
+        else if (OutputFile.Contains("ICT/Petra/Plugins"))
+        {
+            SharedPathName = "Ict.Petra.Plugins." + tn.Name;
         }
 
         InsertSubNamespaces(Template, connectors, tn.Name, SharedPathName, tn);
@@ -521,6 +532,11 @@ public class GenerateClientGlue
         if (OutputFile.Contains("ClientGlue.MServerAdmin"))
         {
             Template.SetCodelet("REMOTEOBJECTSNAMESPACE", "Ict.Petra.ServerAdmin.App.Core.RemoteObjects");
+        }
+        else if (OutputFile.Contains("ICT/Petra/Plugins"))
+        {
+            string pluginWithNamespace = TAppSettingsManager.GetValue("plugin");
+            Template.SetCodelet("REMOTEOBJECTSNAMESPACE", pluginWithNamespace + ".RemoteObjects");
         }
         else
         {
@@ -581,7 +597,7 @@ public class GenerateClientGlue
 
             if ((module == "all") || (tn.Name == module))
             {
-                SortedList <string, TypeDeclaration>connectors = TCollectConnectorInterfaces.GetConnectors(tn.Name);
+                SortedList <string, TypeDeclaration>connectors = TCollectConnectorInterfaces.GetConnectors(AOutputPath, tn.Name);
                 CreateClientGlue(tn, connectors, AOutputPath);
             }
         }

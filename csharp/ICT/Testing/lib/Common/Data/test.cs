@@ -4,7 +4,7 @@
 // @Authors:
 //       timop
 //
-// Copyright 2004-2013 by OM International
+// Copyright 2004-2014 by OM International
 //
 // This file is part of OpenPetra.org.
 //
@@ -124,7 +124,7 @@ namespace Ict.Common.Data.Testing
                     untyped.Rows.Count,
                     (after.Subtract(before)).TotalMilliseconds));
 
-            BankImportTDSAGiftDetailTable typed = new BankImportTDSAGiftDetailTable();
+            GiftBatchTDSAGiftDetailTable typed = new GiftBatchTDSAGiftDetailTable();
             before = DateTime.Now;
             DBAccess.GDBAccessObj.SelectDT(typed, sql, null, new OdbcParameter[0], 0, 0);
             after = DateTime.Now;
@@ -133,10 +133,7 @@ namespace Ict.Common.Data.Testing
                     typed.Rows.Count,
                     (after.Subtract(before)).TotalMilliseconds));
 
-            BankImportTDS ds = new BankImportTDS();
-
-            ACostCentreAccess.LoadAll(ds, null);
-            TLogging.Log(ds.ACostCentre.Rows.Count.ToString() + " cost centres loaded ");
+            GiftBatchTDS ds = new GiftBatchTDS();
 
             AMotivationDetailAccess.LoadAll(ds, null);
 
@@ -149,7 +146,7 @@ namespace Ict.Common.Data.Testing
                     (after.Subtract(before)).TotalMilliseconds));
 
             before = DateTime.Now;
-            BankImportTDS ds2 = new BankImportTDS();
+            GiftBatchTDS ds2 = new GiftBatchTDS();
             ds2.Merge(ds.AGiftDetail);
             after = DateTime.Now;
 
