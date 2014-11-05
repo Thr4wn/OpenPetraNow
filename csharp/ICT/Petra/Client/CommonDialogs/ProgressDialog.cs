@@ -35,6 +35,7 @@ namespace Ict.Petra.Client.CommonDialogs
     /// </summary>
     public partial class TProgressDialog : System.Windows.Forms.Form
     {
+        private Thread FWorkerThread = null;
         private bool FConfirmedClosing = false;
         private bool FShowCancellationConfirmationQuestion = false;
         private bool FCancelled = false;
@@ -71,7 +72,8 @@ namespace Ict.Petra.Client.CommonDialogs
             FShowCancellationConfirmationQuestion = AShowCancellationConfirmationQuestion;
 
             TRemote.MCommon.WebConnectors.Reset();
-            AWorkerThread.Start();
+            FWorkerThread = AWorkerThread;
+            FWorkerThread.Start();
 
             FQueryServerForProgress = AQueryServerForProgress;
 
@@ -110,19 +112,20 @@ namespace Ict.Petra.Client.CommonDialogs
 
             if (CancelConfirmationResult == DialogResult.Yes)
             {
+                FCancelled = true;
+
                 if (FQueryServerForProgress)
                 {
                     try
                     {
                         TRemote.MCommon.WebConnectors.CancelJob();
+                        FWorkerThread.Join();
                     }
                     catch (Exception Exc)
                     {
                         TLogging.Log("While cancelling a job from a Progress Dialog we got the following Exception:\r\n" + Exc.ToString());
                     }
                 }
-
-                FCancelled = true;
             }
         }
 
@@ -180,6 +183,8 @@ namespace Ict.Petra.Client.CommonDialogs
             }
         }
 
+        private int FCountConsecutiveErrors = 0;
+
         private void Timer1Tick(object sender, EventArgs e)
         {
             string caption;
@@ -189,20 +194,35 @@ namespace Ict.Petra.Client.CommonDialogs
 
             if (FQueryServerForProgress)
             {
-                if (TRemote.MCommon.WebConnectors.GetCurrentState(out caption,
-                        out message,
-                        out percentage,
-                        out finished))
+                try
                 {
-                    this.Text = caption;
-                    this.lblMessage.Text = message;
-                    this.progressBar.Value = percentage;
-
-                    if (finished)
+                    if (TRemote.MCommon.WebConnectors.GetCurrentState(out caption,
+                            out message,
+                            out percentage,
+                            out finished))
                     {
-                        this.DialogResult = FCancelled?DialogResult.Cancel:DialogResult.OK;
-                        FConfirmedClosing = true;
-                        Close();
+                        FCountConsecutiveErrors = 0;
+                        this.Text = caption;
+                        this.lblMessage.Text = message;
+                        this.progressBar.Value = percentage;
+
+                        if (finished)
+                        {
+                            // wait till the thread finishes
+                            FWorkerThread.Join();
+                            this.DialogResult = FCancelled ? DialogResult.Cancel : DialogResult.OK;
+                            FConfirmedClosing = true;
+                            Close();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    FCountConsecutiveErrors++;
+
+                    if (FCountConsecutiveErrors > 3)
+                    {
+                        throw ex;
                     }
                 }
             }
@@ -218,6 +238,8 @@ namespace Ict.Petra.Client.CommonDialogs
 
                 if (FFinished)
                 {
+                    // wait till the thread finishes
+                    FWorkerThread.Join();
                     this.DialogResult = FCancelled ? DialogResult.Cancel : DialogResult.OK;
                     FConfirmedClosing = true;
                     Close();

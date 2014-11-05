@@ -80,8 +80,6 @@ namespace Ict.Tools.DevelopersAssistant
             this.cboCodeGeneration = new System.Windows.Forms.ComboBox();
             this.label8 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
-            this.linkLabelRestartServer = new System.Windows.Forms.LinkLabel();
-            this.linkLabelStopServer = new System.Windows.Forms.LinkLabel();
             this.linkLabelStartServer = new System.Windows.Forms.LinkLabel();
             this.linkLabelYamlFile = new System.Windows.Forms.LinkLabel();
             this.btnMiscellaneous = new System.Windows.Forms.Button();
@@ -114,14 +112,6 @@ namespace Ict.Tools.DevelopersAssistant
             this.lblWarnings = new System.Windows.Forms.Label();
             this.chkVerbose = new System.Windows.Forms.CheckBox();
             this.txtOutput = new System.Windows.Forms.TextBox();
-            this.ExternalPage = new System.Windows.Forms.TabPage();
-            this.groupBox5 = new System.Windows.Forms.GroupBox();
-            this.linkRefreshLinks = new System.Windows.Forms.LinkLabel();
-            this.linkEditLinks = new System.Windows.Forms.LinkLabel();
-            this.lblExternalWebLink = new System.Windows.Forms.Label();
-            this.btnBrowseWeb = new System.Windows.Forms.Button();
-            this.lblWebLinkInfo = new System.Windows.Forms.Label();
-            this.lstExternalWebLinks = new System.Windows.Forms.ListBox();
             this.OptionsPage = new System.Windows.Forms.TabPage();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.btnAdvancedOptions = new System.Windows.Forms.Button();
@@ -148,7 +138,7 @@ namespace Ict.Tools.DevelopersAssistant
             this.chkAutoStartServer = new System.Windows.Forms.CheckBox();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.ShutdownTimer = new System.Windows.Forms.Timer(this.components);
-            this.TickTimer = new System.Windows.Forms.Timer(this.components);
+            this.linkLabelServerManager = new System.Windows.Forms.LinkLabel();
             this.tabControl.SuspendLayout();
             this.TaskPage.SuspendLayout();
             this.grpMultiple.SuspendLayout();
@@ -156,8 +146,6 @@ namespace Ict.Tools.DevelopersAssistant
             this.DatabasePage.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.OutputPage.SuspendLayout();
-            this.ExternalPage.SuspendLayout();
-            this.groupBox5.SuspendLayout();
             this.OptionsPage.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -169,7 +157,6 @@ namespace Ict.Tools.DevelopersAssistant
             this.tabControl.Controls.Add(this.TaskPage);
             this.tabControl.Controls.Add(this.DatabasePage);
             this.tabControl.Controls.Add(this.OutputPage);
-            this.tabControl.Controls.Add(this.ExternalPage);
             this.tabControl.Controls.Add(this.OptionsPage);
             this.tabControl.Location = new System.Drawing.Point(12, 12);
             this.tabControl.Name = "tabControl";
@@ -362,6 +349,7 @@ namespace Ict.Tools.DevelopersAssistant
             // grpSingle
             //
             this.grpSingle.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.grpSingle.Controls.Add(this.linkLabelServerManager);
             this.grpSingle.Controls.Add(this.btnPreviewWinform);
             this.grpSingle.Controls.Add(this.chkStartClientAfterGenerateWinform);
             this.grpSingle.Controls.Add(this.chkCompileWinform);
@@ -371,8 +359,6 @@ namespace Ict.Tools.DevelopersAssistant
             this.grpSingle.Controls.Add(this.cboCodeGeneration);
             this.grpSingle.Controls.Add(this.label8);
             this.grpSingle.Controls.Add(this.label5);
-            this.grpSingle.Controls.Add(this.linkLabelRestartServer);
-            this.grpSingle.Controls.Add(this.linkLabelStopServer);
             this.grpSingle.Controls.Add(this.linkLabelStartServer);
             this.grpSingle.Controls.Add(this.linkLabelYamlFile);
             this.grpSingle.Controls.Add(this.btnMiscellaneous);
@@ -493,31 +479,6 @@ namespace Ict.Tools.DevelopersAssistant
             this.label5.TabIndex = 10;
             this.label5.Text = "Code generation";
             //
-            // linkLabelRestartServer
-            //
-            this.linkLabelRestartServer.AutoSize = true;
-            this.linkLabelRestartServer.Location = new System.Drawing.Point(246, 48);
-            this.linkLabelRestartServer.Name = "linkLabelRestartServer";
-            this.linkLabelRestartServer.Size = new System.Drawing.Size(76, 13);
-            this.linkLabelRestartServer.TabIndex = 3;
-            this.linkLabelRestartServer.TabStop = true;
-            this.linkLabelRestartServer.Text = "Re-start server";
-            this.toolTip.SetToolTip(this.linkLabelRestartServer, "Restart the Open Petra server (and refresh all tables).");
-            this.linkLabelRestartServer.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(
-                this.linkLabelRestartServer_LinkClicked);
-            //
-            // linkLabelStopServer
-            //
-            this.linkLabelStopServer.AutoSize = true;
-            this.linkLabelStopServer.Location = new System.Drawing.Point(139, 48);
-            this.linkLabelStopServer.Name = "linkLabelStopServer";
-            this.linkLabelStopServer.Size = new System.Drawing.Size(61, 13);
-            this.linkLabelStopServer.TabIndex = 2;
-            this.linkLabelStopServer.TabStop = true;
-            this.linkLabelStopServer.Text = "Stop server";
-            this.toolTip.SetToolTip(this.linkLabelStopServer, "Stop the Open Petra server.");
-            this.linkLabelStopServer.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabelStopServer_LinkClicked);
-            //
             // linkLabelStartServer
             //
             this.linkLabelStartServer.AutoSize = true;
@@ -609,9 +570,9 @@ namespace Ict.Tools.DevelopersAssistant
             this.label3.ForeColor = System.Drawing.SystemColors.ControlText;
             this.label3.Location = new System.Drawing.Point(6, 25);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(66, 13);
+            this.label3.Size = new System.Drawing.Size(158, 13);
             this.label3.TabIndex = 0;
-            this.label3.Text = "Petra Server";
+            this.label3.Text = "OpenPetra Development Server";
             //
             // btnGenerateWinform
             //
@@ -877,91 +838,6 @@ namespace Ict.Tools.DevelopersAssistant
             this.txtOutput.Size = new System.Drawing.Size(721, 414);
             this.txtOutput.TabIndex = 4;
             //
-            // ExternalPage
-            //
-            this.ExternalPage.Controls.Add(this.groupBox5);
-            this.ExternalPage.Location = new System.Drawing.Point(4, 22);
-            this.ExternalPage.Name = "ExternalPage";
-            this.ExternalPage.Padding = new System.Windows.Forms.Padding(3);
-            this.ExternalPage.Size = new System.Drawing.Size(733, 456);
-            this.ExternalPage.TabIndex = 4;
-            this.ExternalPage.Text = "External";
-            this.ExternalPage.UseVisualStyleBackColor = true;
-            //
-            // groupBox5
-            //
-            this.groupBox5.Controls.Add(this.linkRefreshLinks);
-            this.groupBox5.Controls.Add(this.linkEditLinks);
-            this.groupBox5.Controls.Add(this.lblExternalWebLink);
-            this.groupBox5.Controls.Add(this.btnBrowseWeb);
-            this.groupBox5.Controls.Add(this.lblWebLinkInfo);
-            this.groupBox5.Controls.Add(this.lstExternalWebLinks);
-            this.groupBox5.Location = new System.Drawing.Point(27, 21);
-            this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(670, 318);
-            this.groupBox5.TabIndex = 0;
-            this.groupBox5.TabStop = false;
-            this.groupBox5.Text = "Useful Web Links";
-            //
-            // linkRefreshLinks
-            //
-            this.linkRefreshLinks.AutoSize = true;
-            this.linkRefreshLinks.Location = new System.Drawing.Point(140, 286);
-            this.linkRefreshLinks.Name = "linkRefreshLinks";
-            this.linkRefreshLinks.Size = new System.Drawing.Size(63, 13);
-            this.linkRefreshLinks.TabIndex = 5;
-            this.linkRefreshLinks.TabStop = true;
-            this.linkRefreshLinks.Text = "Refresh List";
-            this.linkRefreshLinks.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkRefreshLinks_LinkClicked);
-            //
-            // linkEditLinks
-            //
-            this.linkEditLinks.AutoSize = true;
-            this.linkEditLinks.Location = new System.Drawing.Point(7, 286);
-            this.linkEditLinks.Name = "linkEditLinks";
-            this.linkEditLinks.Size = new System.Drawing.Size(44, 13);
-            this.linkEditLinks.TabIndex = 4;
-            this.linkEditLinks.TabStop = true;
-            this.linkEditLinks.Text = "Edit List";
-            this.linkEditLinks.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkEditLinks_LinkClicked);
-            //
-            // lblExternalWebLink
-            //
-            this.lblExternalWebLink.AutoSize = true;
-            this.lblExternalWebLink.Location = new System.Drawing.Point(251, 138);
-            this.lblExternalWebLink.Name = "lblExternalWebLink";
-            this.lblExternalWebLink.Size = new System.Drawing.Size(38, 13);
-            this.lblExternalWebLink.TabIndex = 3;
-            this.lblExternalWebLink.Text = "http://";
-            //
-            // btnBrowseWeb
-            //
-            this.btnBrowseWeb.Location = new System.Drawing.Point(589, 165);
-            this.btnBrowseWeb.Name = "btnBrowseWeb";
-            this.btnBrowseWeb.Size = new System.Drawing.Size(75, 23);
-            this.btnBrowseWeb.TabIndex = 2;
-            this.btnBrowseWeb.Text = "Browse";
-            this.btnBrowseWeb.UseVisualStyleBackColor = true;
-            this.btnBrowseWeb.Click += new System.EventHandler(this.btnBrowseWeb_Click);
-            //
-            // lblWebLinkInfo
-            //
-            this.lblWebLinkInfo.Location = new System.Drawing.Point(251, 38);
-            this.lblWebLinkInfo.Name = "lblWebLinkInfo";
-            this.lblWebLinkInfo.Size = new System.Drawing.Size(413, 87);
-            this.lblWebLinkInfo.TabIndex = 1;
-            this.lblWebLinkInfo.Text = "More Info";
-            //
-            // lstExternalWebLinks
-            //
-            this.lstExternalWebLinks.FormattingEnabled = true;
-            this.lstExternalWebLinks.Location = new System.Drawing.Point(6, 28);
-            this.lstExternalWebLinks.Name = "lstExternalWebLinks";
-            this.lstExternalWebLinks.Size = new System.Drawing.Size(239, 251);
-            this.lstExternalWebLinks.TabIndex = 0;
-            this.lstExternalWebLinks.SelectedIndexChanged += new System.EventHandler(this.lstExternalWebLinks_SelectedIndexChanged);
-            this.lstExternalWebLinks.DoubleClick += new System.EventHandler(this.lstExternalWebLinks_DoubleClick);
-            //
             // OptionsPage
             //
             this.OptionsPage.Controls.Add(this.groupBox4);
@@ -1223,11 +1099,17 @@ namespace Ict.Tools.DevelopersAssistant
             this.ShutdownTimer.Interval = 200;
             this.ShutdownTimer.Tick += new System.EventHandler(this.ShutdownTimer_Tick);
             //
-            // TickTimer
+            // linkLabelServerManager
             //
-            this.TickTimer.Enabled = true;
-            this.TickTimer.Interval = 10000;
-            this.TickTimer.Tick += new System.EventHandler(this.TickTimer_Tick);
+            this.linkLabelServerManager.AutoSize = true;
+            this.linkLabelServerManager.Location = new System.Drawing.Point(162, 48);
+            this.linkLabelServerManager.Name = "linkLabelServerManager";
+            this.linkLabelServerManager.Size = new System.Drawing.Size(108, 13);
+            this.linkLabelServerManager.TabIndex = 23;
+            this.linkLabelServerManager.TabStop = true;
+            this.linkLabelServerManager.Text = "Start Server Manager";
+            this.linkLabelServerManager.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(
+                this.linkLabelServerManager_LinkClicked);
             //
             // MainForm
             //
@@ -1254,9 +1136,6 @@ namespace Ict.Tools.DevelopersAssistant
             this.groupBox2.PerformLayout();
             this.OutputPage.ResumeLayout(false);
             this.OutputPage.PerformLayout();
-            this.ExternalPage.ResumeLayout(false);
-            this.groupBox5.ResumeLayout(false);
-            this.groupBox5.PerformLayout();
             this.OptionsPage.ResumeLayout(false);
             this.OptionsPage.PerformLayout();
             this.groupBox4.ResumeLayout(false);
@@ -1289,8 +1168,6 @@ namespace Ict.Tools.DevelopersAssistant
         private System.Windows.Forms.TextBox txtYAMLPath;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button btnMiscellaneous;
-        private System.Windows.Forms.LinkLabel linkLabelRestartServer;
-        private System.Windows.Forms.LinkLabel linkLabelStopServer;
         private System.Windows.Forms.LinkLabel linkLabelStartServer;
         private System.Windows.Forms.LinkLabel linkLabelYamlFile;
         private System.Windows.Forms.Button btnCompilation;
@@ -1356,14 +1233,6 @@ namespace Ict.Tools.DevelopersAssistant
         private System.Windows.Forms.Timer ShutdownTimer;
         private System.Windows.Forms.Button btnPreviewWinform;
         private System.Windows.Forms.Button btnAdvancedOptions;
-        private System.Windows.Forms.TabPage ExternalPage;
-        private System.Windows.Forms.GroupBox groupBox5;
-        private System.Windows.Forms.Label lblExternalWebLink;
-        private System.Windows.Forms.Button btnBrowseWeb;
-        private System.Windows.Forms.Label lblWebLinkInfo;
-        private System.Windows.Forms.ListBox lstExternalWebLinks;
-        private System.Windows.Forms.LinkLabel linkRefreshLinks;
-        private System.Windows.Forms.LinkLabel linkEditLinks;
-        private System.Windows.Forms.Timer TickTimer;
+        private System.Windows.Forms.LinkLabel linkLabelServerManager;
     }
 }

@@ -78,9 +78,6 @@ namespace Ict.Petra.Client.MFinance.Gui.Gift
         {
             FGiftDetailFindObject = TRemote.MFinance.Finance.UIConnectors.GiftDetailFind();
 
-            // Register Object with the TEnsureKeepAlive Class so that it doesn't get GC'd
-            TEnsureKeepAlive.Register(FGiftDetailFindObject);
-
             // remove from the combobox all ledger numbers which the user does not have permission to access
             DataView cmbLedgerDataView = (DataView)cmbLedger.cmbCombobox.DataSource;
 
@@ -357,13 +354,13 @@ namespace Ict.Petra.Client.MFinance.Gui.Gift
 
         /// <summary>
         /// Thread for the search operation. Monitor's the Server System.Object's
-        /// AsyncExecProgress.ProgressState and invokes UI updates from that.
+        /// Progress.ProgressState and invokes UI updates from that.
         ///
         /// </summary>
         /// <returns>void</returns>
         private void SearchFinishedCheckThread()
         {
-            TAsyncExecProgressState ProgressState;
+            TProgressState ProgressState;
 
             /* Check whether this Thread should still execute */
             while (FKeepUpSearchFinishedCheck)
@@ -372,7 +369,7 @@ namespace Ict.Petra.Client.MFinance.Gui.Gift
                 {
                     /* The next line of code calls a function on the PetraServer
                      * > causes a bit of data traffic everytime! */
-                    ProgressState = FGiftDetailFindObject.AsyncExecProgress.ProgressState;
+                    ProgressState = FGiftDetailFindObject.Progress;
                 }
                 catch (System.NullReferenceException)
                 {
@@ -387,9 +384,8 @@ namespace Ict.Petra.Client.MFinance.Gui.Gift
                     throw;
                 }
 
-                switch (ProgressState)
+                if (ProgressState.JobFinished)
                 {
-                    case TAsyncExecProgressState.Aeps_Finished:
                         FKeepUpSearchFinishedCheck = false;
 
                         // Fetch the first page of data
@@ -404,9 +400,9 @@ namespace Ict.Petra.Client.MFinance.Gui.Gift
                         {
                             MessageBox.Show(E.ToString());
                         }
-                        break;
-
-                    case TAsyncExecProgressState.Aeps_Stopped:
+                }
+                else if (ProgressState.CancelJob)
+                {
                         FKeepUpSearchFinishedCheck = false;
                         EnableDisableUI(true);
                         return;
@@ -451,7 +447,8 @@ namespace Ict.Petra.Client.MFinance.Gui.Gift
                 // Enable/disable according to how the search operation ended
                 if (Convert.ToBoolean(AEnable))
                 {
-                    if (FGiftDetailFindObject.AsyncExecProgress.ProgressState != TAsyncExecProgressState.Aeps_Stopped)
+                    TProgressState ThreadStatus = FGiftDetailFindObject.Progress;
+                    if (ThreadStatus.JobFinished)
                     {
                         // Search operation ended without interruption
                         if (FPagedDataTable.Rows.Count > 0)
@@ -581,8 +578,8 @@ namespace Ict.Petra.Client.MFinance.Gui.Gift
             // ReleaseServerObject
             if (FGiftDetailFindObject != null)
             {
-                // UnRegister Object from the TEnsureKeepAlive Class so that the Object can get GC'd on the PetraServer
-                TEnsureKeepAlive.UnRegister(FGiftDetailFindObject);
+                // 'Release' instantiated UIConnector Object on the server side so it can get Garbage Collected there
+                TUIConnectorLifetimeHandling.ReleaseUIConnector((IDisposable)FGiftDetailFindObject);
                 FGiftDetailFindObject = null;
             }
         }

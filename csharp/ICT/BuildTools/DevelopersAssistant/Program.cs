@@ -40,10 +40,6 @@ namespace Ict.Tools.DevelopersAssistant
         /// </summary>
         public static uint UM_START_SERVER = 0x2100;
         /// <summary>
-        /// The user-message id that we pass to stop the server
-        /// </summary>
-        public static uint UM_STOP_SERVER = 0x2101;
-        /// <summary>
         /// The static command line arguments object
         /// </summary>
         public static CommandArgs cmdLine = null;
@@ -77,11 +73,7 @@ namespace Ict.Tools.DevelopersAssistant
             {
                 // There must be another window already open
                 // We need to send an appropriatemessage to the other app and just quit our new instance
-                if (cmdLine.StopServer)
-                {
-                    PostMessage(hWnd, UM_STOP_SERVER, IntPtr.Zero, IntPtr.Zero);
-                }
-                else if (cmdLine.StartServer)
+                if (cmdLine.StartServer)
                 {
                     PostMessage(hWnd, UM_START_SERVER, IntPtr.Zero, IntPtr.Zero);
                 }
