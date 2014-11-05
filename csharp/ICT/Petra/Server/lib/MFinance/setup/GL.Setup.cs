@@ -2912,6 +2912,7 @@ namespace Ict.Petra.Server.MFinance.Setup.WebConnectors
 
                 if (TProgressTracker.GetCurrentState(DomainManager.GClientID.ToString()).CancelJob == true)
                 {
+                    TProgressTracker.FinishJob(DomainManager.GClientID.ToString());
                     throw new Exception("Deletion of Ledger was cancelled by the user");
                 }
 

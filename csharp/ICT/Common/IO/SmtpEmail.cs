@@ -27,6 +27,7 @@ using System.Net;
 using System.Net.Mail;
 using System.Collections.Generic;
 using System.Threading;
+using System.Net.Security;
 using Ict.Common;
 
 namespace Ict.Common.IO
@@ -59,6 +60,17 @@ namespace Ict.Common.IO
                 FSmtpClient.UseDefaultCredentials = false;
                 FSmtpClient.Credentials = new NetworkCredential(AUsername, APassword);
                 FSmtpClient.EnableSsl = AEnableSsl;
+
+                if (TAppSettingsManager.GetValue("IgnoreServerCertificateValidation", "false", false) == "true")
+                {
+                    // when checking the validity of a SSL certificate, always pass
+                    // this is needed for smtp.outlook365.com, since I cannot find a place to get the public key for the ssl certificate
+                    ServicePointManager.ServerCertificateValidationCallback =
+                        new RemoteCertificateValidationCallback(
+                            delegate
+                            { return true; }
+                            );
+                }
             }
         }
 
@@ -167,8 +179,6 @@ namespace Ict.Common.IO
             }
         }
 
-        private static List <DateTime>FEmailsSentInLastMinute = new List <DateTime>();
-
         /// <summary>
         /// Send an email message
         /// </summary>
@@ -194,39 +204,32 @@ namespace Ict.Common.IO
             {
                 AEmail.IsBodyHtml = AEmail.Body.ToLower().Contains("<html>");
 
-                int LimitEmailsPerMinute = TAppSettingsManager.GetInt32("SmtpLimitMessagesPerMinute", 30);
-                int countInLastMinute = LimitEmailsPerMinute;
+                int AttemptCount = 3;
 
-                while (countInLastMinute >= LimitEmailsPerMinute)
+                while (AttemptCount > 0)
                 {
-                    countInLastMinute = 0;
-
-                    foreach (DateTime dt in FEmailsSentInLastMinute)
+                    AttemptCount--;
+                    try
                     {
-                        // better check the last 2 minutes, to avoid confusion
-                        if (DateTime.Compare(dt.AddMinutes(2), DateTime.Now) >= 0)
+                        // for office365, this takes about 15 seconds
+                        FSmtpClient.Send(AEmail);
+
+                        AEmail.Headers.Add("Date-Sent", DateTime.Now.ToString());
+
+                        return true;
+                    }
+                    catch (Exception e)
+                    {
+                        if (AttemptCount > 0)
                         {
-                            countInLastMinute++;
+                            Thread.Sleep(TimeSpan.FromMinutes(1));
+                        }
+                        else
+                        {
+                            throw e;
                         }
                     }
-
-                    if (countInLastMinute == 0)
-                    {
-                        FEmailsSentInLastMinute.Clear();
-                    }
-
-                    if (countInLastMinute >= LimitEmailsPerMinute)
-                    {
-                        Thread.Sleep(TimeSpan.FromSeconds(10));
-                    }
                 }
-
-                FEmailsSentInLastMinute.Add(DateTime.Now);
-
-                FSmtpClient.Send(AEmail);
-
-                AEmail.Headers.Add("Date-Sent", DateTime.Now.ToString());
-                return true;
             }
             catch (Exception ex)
             {
@@ -245,6 +248,8 @@ namespace Ict.Common.IO
 
                 throw;
             }
+
+            return false;
         }
     }
 }
