@@ -1903,16 +1903,24 @@ namespace Ict.Petra.Client.MFinance.Gui.Gift
 
             if ((FPreviouslySelectedDetailRow != null) && (FBatchNumber == batchNumber))
             {
-                //Rows already active in transaction tab. Need to set current row as code below will not update currently selected row
-                FGLEffectivePeriodChanged = true;
-                GetSelectedDetailRow().DateEntered = batchEffectiveDate;
+                // only update the gift date if it is in a different period than the batch date
+                if (!SamePeriod(GetSelectedDetailRow().DateEntered, batchEffectiveDate))
+                {
+                    //Rows already active in transaction tab. Need to set current row as code below will not update currently selected row
+                    FGLEffectivePeriodChanged = true;
+                    GetSelectedDetailRow().DateEntered = batchEffectiveDate;
+                }
             }
 
             //Update all gift rows in this batch
             foreach (DataRowView dv in giftDataView)
             {
                 AGiftRow giftRow = (AGiftRow)dv.Row;
-                giftRow.DateEntered = batchEffectiveDate;
+                // only update the gift date if it is in a different period than the batch date
+                if (!SamePeriod(giftRow.DateEntered, batchEffectiveDate))
+                {
+                    giftRow.DateEntered = batchEffectiveDate;
+                }
             }
 
             //If current row exists then refresh details
@@ -1920,6 +1928,12 @@ namespace Ict.Petra.Client.MFinance.Gui.Gift
             {
                 ShowDetails();
             }
+        }
+
+        private bool SamePeriod(DateTime t1, DateTime t2)
+        {
+            // TODO: use a_accounting_period
+            return (t1.Year == t2.Year && t1.Month == t2.Month);
         }
 
         /// <summary>

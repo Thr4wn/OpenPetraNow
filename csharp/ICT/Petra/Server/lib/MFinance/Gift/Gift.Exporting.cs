@@ -574,7 +574,9 @@ namespace Ict.Petra.Server.MFinance.Gift
             else
             {
                 FStringWriter.Write(quote);
-                FStringWriter.Write(StringHelper.FormatUsingCurrencyCode(currencyField, FCurrencyCode));
+                // see https://tracker.openpetra.org/view.php?id=2541
+                //FStringWriter.Write(StringHelper.FormatUsingCurrencyCode(currencyField, FCurrencyCode, FCultureInfo));
+                FStringWriter.Write(String.Format(FCultureInfo, "{0:g}", currencyField));
                 FStringWriter.Write(quote);
             }
 
