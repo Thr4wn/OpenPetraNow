@@ -1768,7 +1768,7 @@ namespace Ict.Tools.DataDumpPetra2
                         "Instant Messaging & Chat", "Instant Messaging, Internet Voice Communication", "3", "1", "0"
                     },
                     {
-                        "PARTNERS_CONTACTDETAILS_SETTINGS", "A Partners' Contact Details Settings", "0", "0", "1"
+                        "PARTNERS_CONTACTDETAILS_SETTINGS", "A Partner's Contact Details Settings", "0", "0", "1"
                     }
                 };
 
